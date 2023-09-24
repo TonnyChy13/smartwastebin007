@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Smart Bin Data</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f2f2f2;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ccc;
+        }
+
+        th {
+            background-color: #f9f9f9;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Smart Bin Data</h1>
+
+    <table id="binData">
+        <tr>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Temperature</th>
+            <th>Humidity</th>
+            <th>Level</th>
+        </tr>
+    </table>
+
+    <script>
+        function fetchData() {
+            $.ajax({
+                url: 'fetch_data.php?_=' + new Date().getTime(),
+                type: 'GET',
+                dataType: 'json',
+                success: function(data) {
+                    console.log(data); // Log the fetched data to the console for troubleshooting
+
+                    const table = document.getElementById('binData');
+
+                    // Clear existing table data
+                    table.innerHTML = '';
+
+                    // Populate the table with new data
+                    data.forEach(row => {
+                        const newRow = document.createElement('tr');
+                        newRow.innerHTML = `
+                            <td>${row.date}</td>
+                            <td>${row.time}</td>
+                            <td>${row.temp}°C</td>
+                            <td>${row.hum}%</td>
+                            <td>${row.level}%</td>
+                        `;
+                        table.appendChild(newRow);
+                    });
+
+                    // Handle case when no results are available
+                    if (data.length === 0) {
+                        const newRow = document.createElement('tr');
+                        newRow.innerHTML = `<td colspan="5">No results</td>`;
+                        table.appendChild(newRow);
+                    }
+                },
+                error: function(error) {
+                    console.error('Error:', error);
+                }
+            });
+        }
+
+        // Fetch data initially
+        fetchData();
+
+        // Fetch data every 5 seconds (adjust the interval as needed)
+        setInterval(fetchData, 5000);
+    </script>
+</body>
+</html>
